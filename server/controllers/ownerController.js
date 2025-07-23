@@ -47,3 +47,75 @@ export const addCar = async (req, res) => {
         res.json({success: false, message: error.message})
     }
 }
+
+// Api to list owner cars
+export const getOwnerCars = async(req, res) => {
+    try {
+        const {_id} = req.user;
+        const cars = await Car.find({owner: _id})
+        res.json({success: true, cars})
+    }catch(error){
+        console.log(error.message);
+        res.json({success: false, message: error.message});
+    }
+}
+
+// api to toggle car availability
+export const toggleCarAvailability = async(req, res) => {
+    try {
+        const {_id} = req.user;
+        const {carId} = req.body;
+        const car = await Car.findById(carId)
+
+        // checking if the car belongs to the owner
+        if(car.owner.toString() !== _id.toString()){
+            return res.json({success: false, message: "unauthorized"})
+        }
+
+        car.isAvailable = !car.isAvailable;
+        await car.save();
+
+        res.json({success: true, cars})
+    }catch(error){
+        console.log(error.message);
+        res.json({success: false, message: error.message});
+    }
+}
+
+// api to delete a car
+export const deleteCar = async(req, res) => {
+    try {
+        const {_id} = req.user;
+        const {carId} = req.body;
+        const car = await Car.findById(carId)
+
+        // checking if the car belongs to the owner
+        if(car.owner.toString() !== _id.toString()){
+            return res.json({success: false, message: "unauthorized"})
+        }
+
+        car.owner = null;
+        car.isAvailable = false;
+
+        await car.save();
+
+        res.json({success: true, message: "Availability Toggled"})
+    }catch(error){
+        console.log(error.message);
+        res.json({success: false, message: error.message});
+    }
+}
+
+// api to get dashboard data
+export const getDashboardData = async (req, res) => {
+    try {
+        const {_id, role} = req.user;
+        if(role !== 'owner'){
+            return res.json({success: false, message: "Unauthorized"});
+        }
+        const cars = await Car.find({owner: _id})
+    }catch(error){
+        console.log(error.message);
+        res.json({success: false, message: error.message});
+    }
+}
