@@ -8,7 +8,7 @@ export const checkAvailability = async(car, pickupDate, returnDate) => {
         {
             car,
             pickupDate: {$lte: returnDate},
-            returnDate: {$lte: pickupDate},
+            returnDate: {$gte: pickupDate},
         }
     )
     return bookings.length === 0;
@@ -50,7 +50,7 @@ export const createBooking = async (req, res) => {
         // Price
         const picked = new Date(pickupDate);
         const returned = new Date(returnDate);
-        const noOfDays = Math.ceil((returnDate - picked) / (1000 * 60 * 60 * 24))
+        const noOfDays = Math.ceil((returned - picked) / (1000 * 60 * 60 * 24))
         const price = carData.pricePerDay * noOfDays;
 
         await Booking.create({car, owner: carData.owner, user: _id, pickupDate, returnDate, price})
@@ -80,7 +80,7 @@ export const getOwnerBookings = async (req, res) => {
         if(req.user.role !==  'owner') {
             return res.json({success: false, message: "Unauthorized"})
         }
-        const bookings = await Booking.find({owner: req.user._id}).populate("car user").select("-user.password").sort({createdAt: -1})
+        const bookings = await Booking.find({owner: req.user._id}).populate('car user').select("-user.password").sort({createdAt: -1})
         res.json({success: true, bookings})
     } catch (error) {
         console.log(error.message);

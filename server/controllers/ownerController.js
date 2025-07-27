@@ -76,7 +76,7 @@ export const toggleCarAvailability = async(req, res) => {
         car.isAvailable = !car.isAvailable;
         await car.save();
 
-        res.json({success: true, cars})
+        res.json({success: true, message: "Availability Toggled"})
     }catch(error){
         console.log(error.message);
         res.json({success: false, message: error.message});
@@ -100,7 +100,7 @@ export const deleteCar = async(req, res) => {
 
         await car.save();
 
-        res.json({success: true, message: "Availability Toggled"})
+        res.json({success: true, message: "Delete Car Successfully"})
     }catch(error){
         console.log(error.message);
         res.json({success: false, message: error.message});
